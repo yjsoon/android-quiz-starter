@@ -1,7 +1,9 @@
 package com.example.quiz
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -9,6 +11,8 @@ import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
+
+    val TAG = "yjsoon.MainActivity"
 
     val questions = listOf(
         Question("There are 9 planets in our solar system",
@@ -33,16 +37,42 @@ class MainActivity : AppCompatActivity() {
         questionTextView.text = questions[currentQuestion].statement
 
         trueButton.setOnClickListener {
-            var message = "Wrong!"
-            if (questions[currentQuestion].correctness) {
-                message = "Correct!"
-            }
-            Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show()
-//            Toast.makeText(applicationContext, "Correct!", Toast.LENGTH_SHORT).show()
+            checkCorrect(true, it)
+            nextButton.visibility = View.VISIBLE
         }
 
         falseButton.setOnClickListener {
-            Snackbar.make(it, "WRong!", Snackbar.LENGTH_SHORT).show()
+            checkCorrect(false, it)
+            nextButton.visibility = View.VISIBLE
         }
+
+        // next button should...
+        // increment currentQuestion
+        // set questionTextView
+        // hide itself
+        nextButton.setOnClickListener {
+            currentQuestion++
+
+            if (currentQuestion >= questions.size) {
+                Log.d(TAG, "We've reached the end of the questions")
+                val intent = Intent(this, CongratsActivity::class.java).apply {
+                    putExtra("score", "0") // incomplete! 
+                }
+                startActivity(intent)
+            } else {
+                questionTextView.text = questions[currentQuestion].statement
+                nextButton.visibility = View.INVISIBLE
+            }
+        }
+
+    }
+
+    private fun checkCorrect(correctness: Boolean, it: View) {
+        var message = "Wrong!"
+        if (questions[currentQuestion].correctness == correctness) {
+            message = "Correct!"
+        }
+        Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show()
+//      Toast.makeText(applicationContext, "Correct!", Toast.LENGTH_SHORT).show()
     }
 }
